@@ -43,9 +43,9 @@ const SignUp = () => {
             navigate('/sign-in');
             toast.success("User SignUp Successfully!");
             
-        } catch (err) {
+        } catch (error) {
             setLoading(false);
-            setError(err.message);
+            setError(error.message);
             toast.error("User SignUp Field !");
         }
     };
