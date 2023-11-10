@@ -4,10 +4,12 @@ import SignIn from './pages/SignIn';
 import SignUp from './pages/SignUp';
 import About from './pages/About';
 import Header from './components/Header';
+import { ToastContainer } from 'react-toastify';
 
 
 export default function App() {
   return (
+    <>
     <BrowserRouter>
       <Header />
       <Routes>
@@ -18,5 +20,19 @@ export default function App() {
         
       </Routes>
     </BrowserRouter>
+
+      <ToastContainer                                                              //React-Toastify allows you to add notifications to your app with ease. No more nonsense!
+        position="bottom-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+</>
   );
 }

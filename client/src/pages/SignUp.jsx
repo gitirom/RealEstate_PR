@@ -1,6 +1,9 @@
 
 import { useState } from "react";
 import {Link, useNavigate} from "react-router-dom";
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+
 
 
 
@@ -30,7 +33,6 @@ const SignUp = () => {
                 body: JSON.stringify(formData),
             });
             const data = await res.json();
-            console.log(data);
             if(data.success === false ) {     // data.success is from the file error inside the util file 
                 setError(data.message);
                 setLoading(false);
@@ -38,10 +40,13 @@ const SignUp = () => {
             }
             setLoading(false);
             setError(null);
-            navigate('/sign-in')
-        } catch (error) {
+            navigate('/sign-in');
+            toast.success("User SignUp Successfully!");
+            
+        } catch (err) {
             setLoading(false);
-            setError(error.message);
+            setError(err.message);
+            toast.error("User SignUp Field !");
         }
     };
     
