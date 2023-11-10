@@ -12,7 +12,7 @@ const Header = () => {
                 </h1>
             </Link>
             <form
-                className='bg-slate-100 p-3 rounded-lg flex items-center'
+                className='bg-slate-100 p-3 rounded-lg flex items-center '
             >
                 <input
                 type='text'
@@ -23,7 +23,7 @@ const Header = () => {
                 <FaSearch className='text-slate-600' />
                 </button>
             </form>
-            <ul className='flex gap-4'>
+            <ul className='flex gap-4 font-semibold'>
                 <Link to='/'>
                 <li className='hidden sm:inline text-slate-700 hover:underline'>
                     Home
