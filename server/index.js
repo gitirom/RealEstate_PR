@@ -2,9 +2,15 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import authRouter from './routes/auth.route.js';
+import userRouter from './routes/user.route.js';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 dotenv.config();
 
 const app = express();
+
+app.use(cors());
+app.use(cookieParser());
 
 mongoose
     .connect(process.env.MONGO_URL)
@@ -20,6 +26,7 @@ mongoose
 
 
     app.use('/api/auth', authRouter);
+    app.use('/api/user', userRouter);
 
 
     //  I just create an errorHandling Func. here

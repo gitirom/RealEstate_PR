@@ -5,7 +5,7 @@ import storage from 'redux-persist/lib/storage';
 
 const rootReducer = combineReducers({user: userReducer})
 
-const persistConfig = {    //persist it's just for getting store the user in the locale storage and not getting lose the current user
+const persistConfig = {    //Redux Persist is to seamlessly save the application's Redux state object to persistent storage, such as AsyncStorage or local storage, and retrieve it on app launch, thus preserving the state across app sessions
     key: 'root',
     storage,
     version: 1,
