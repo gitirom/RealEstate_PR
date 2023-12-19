@@ -2,13 +2,19 @@ import { useEffect, useRef, useState } from 'react';
 import {useSelector} from 'react-redux';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import {app} from '../FireBase';
+import { updateUserStart, updateUserSuccess, updateUserFailure } from '../redux/user/userSlice';
+import { useDispatch } from 'react-redux';
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const Profile = () => {
-    const {currentUser} = useSelector(state => state.user);
+    const {currentUser, loading, error} = useSelector(state => state.user);
     const profileRef = useRef();
     const [file, setFile] = useState(null);
-    console.log(file);
+    const [formData, setFormData] = useState({});
+    const dispatch = useDispatch();
+    // console.log(file);
     //firestore Rules
     // allow read;
     // allow write: if
@@ -37,6 +43,40 @@ const Profile = () => {
         );
     }
 
+    const handleChange = (e) => {
+        setFormData({...formData, [e.target.id] : e.target.value});
+    }
+
+    // console.log(formData);
+
+    const handleSubmit = async(e) => {
+        e.preventDefault();
+
+        try {
+            dispatch(updateUserStart());
+            const res = await fetch(`api/user/update/${currentUser._id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await res.json();
+            if(data.success === false) {
+                dispatch(updateUserFailure(data.message));
+                return;
+            }
+
+            dispatch(updateUserSuccess(data));
+            toast.success("User Credentials Updated!");
+
+        } catch (error) {
+            dispatch(updateUserFailure(error.message));
+            toast.error("Error, Not Updated!");
+        }
+
+    }
 
 
 
@@ -44,7 +84,7 @@ const Profile = () => {
     return (
         <div className='p-3 max-w-lg mx-auto' >
             <h1 className='text-3xl font-semibold text-center ' >Profile</h1>
-            <form className='flex flex-col gap-4 mt-24'  >
+            <form onSubmit={handleSubmit} className='flex flex-col gap-4 mt-24'  >
                 <input 
                     type="file" ref={profileRef} hidden accept='image/*'
                     onChange={(e) => setFile(e.target.files[0])}
@@ -53,18 +93,21 @@ const Profile = () => {
                     className='rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2' 
                     src={currentUser.avatar} alt="profile"
                 />
-                <input className='border p-3 rounded-lg ' type="text" placeholder='username' id='username' />
-                <input className='border p-3 rounded-lg ' type="email" placeholder='email' id='email' />
-                <input className='border p-3 rounded-lg ' type="text" placeholder='password' id='password' />
+                <input defaultValue={currentUser.userName} className='border p-3 rounded-lg ' type="text" placeholder='username' id='username' onChange={handleChange} />
+                <input defaultValue={currentUser.email} className='border p-3 rounded-lg ' type="email" placeholder='email' id='email' onChange={handleChange} />
+                <input className='border p-3 rounded-lg ' type="password" placeholder='password' id='password' onChange={handleChange} />
                 <button 
-                    className='bg-slate-700 p-3 hover:opacity-95 text-white font-bold rounded-lg disabled:opacity-80 uppercase'>
-                    Update
+                    disabled={loading}
+                    className='bg-slate-700 p-3 hover:opacity-95 text-white font-bold rounded-lg disabled:opacity-80 uppercase'
+                >
+                        {loading ? 'Loading...' : 'Update'}
                 </button>
             </form>
             <div className="flex justify-between mt-5">
                 <span className='text-red-700 cursor-pointer font-bold' >Delete account</span>
                 <span className='text-red-700 cursor-pointer font-bold'  >Sign Out</span>
             </div>
+            <p className='text-red-700 mt-5'>{error ? error : ''}</p>
         </div>
     )
 }
