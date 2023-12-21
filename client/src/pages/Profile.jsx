@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {useSelector} from 'react-redux';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import {app} from '../FireBase';
-import { updateUserStart, updateUserSuccess, updateUserFailure, deleteUserFailure, deleteUserStart, deleteUserSuccess } from '../redux/user/userSlice';
+import { updateUserStart, updateUserSuccess, updateUserFailure, deleteUserFailure, deleteUserStart, deleteUserSuccess, signOutUserStart, signInFailure } from '../redux/user/userSlice';
 import { useDispatch } from 'react-redux';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -91,7 +91,7 @@ const Profile = () => {
 
     };
 
-    const handleDelete = async() => {
+    const handleDelete = async () => {
         try {
             dispatch(deleteUserStart());
 
@@ -111,6 +111,25 @@ const Profile = () => {
         } catch (error) {
             dispatch(deleteUserFailure(error.message));
             toast.error("User Not Deleted!");
+        }
+    };
+
+    const handleSignOut = async () => {
+        try {
+            dispatch(signOutUserStart());
+            const res = await fetch('/api/auth/signOut');
+            const data = await res.json();
+            if (data.success === false) {
+                dispatch(deleteUserFailure(data.message));
+                return;
+            }
+
+            dispatch(deleteUserSuccess(data));
+            toast.success('SignOut Successful!');
+
+        } catch (error) {
+            dispatch(deleteUserFailure(data.message));
+            toast.error('Error SignOut!');
         }
     }
 
@@ -141,7 +160,7 @@ const Profile = () => {
             </form>
             <div className="flex justify-between mt-5">
                 <span className='text-red-700 cursor-pointer font-bold' onClick={handleDelete} >Delete account</span>
-                <span className='text-red-700 cursor-pointer font-bold'  >Sign Out</span>
+                <span className='text-red-700 cursor-pointer font-bold' onClick={handleSignOut}  >Sign Out</span>
             </div>
             <p className='text-red-700 mt-5'>{error ? error : ''}</p>
         </div>
