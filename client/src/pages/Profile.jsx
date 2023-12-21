@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import {useSelector} from 'react-redux';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import {app} from '../FireBase';
-import { updateUserStart, updateUserSuccess, updateUserFailure } from '../redux/user/userSlice';
+import { updateUserStart, updateUserSuccess, updateUserFailure, deleteUserFailure, deleteUserStart, deleteUserSuccess } from '../redux/user/userSlice';
 import { useDispatch } from 'react-redux';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -13,13 +13,14 @@ const Profile = () => {
     const profileRef = useRef();
     const [file, setFile] = useState(null);
     const [formData, setFormData] = useState({});
+    const [filePerc, setFilePerc] = useState(0);
+    const [fileUploadError, setFileUploadError] = useState(false);
     const dispatch = useDispatch();
-    // console.log(file);
-    //firestore Rules
-    // allow read;
-    // allow write: if
-    // request.resource.size < 2 * 1024 * 1024 &&
-    // request.resource.contentType.matches('image/.*')
+    
+    console.log(formData);
+    console.log(filePerc);
+    console.log(fileUploadError);
+    
 
     useEffect(() => {
         if (file) {
@@ -27,27 +28,39 @@ const Profile = () => {
         }
     }, [file]);
 
-    const handleFileUpload = (file) => {
+    console.log(file);
+
+    const handleFileUpload = () => {
         const storage = getStorage(app);
         const fileName = new Date().getTime() + file.name; //create a file name with new date if there is tow files contains the same name take a diff date   
         const storageRef = ref(storage, fileName);
         const uploadTask = uploadBytesResumable(storageRef, file);
 
-        uploadTask.on('state_changed', 
-            (snapshot) => {  //This is an arrow function that will be executed when the state_changed event is triggered.
-                let progress = (
-                    snapshot.bytesTransferred / 
-                    snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done'); //determine the number of bytes that have been uploaded and the total number of bytes to be uploaded
+        uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+                const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                setFilePerc(Math.round(progress));
+            },
+            (error) => {
+                setFileUploadError(true);
+            },
+            () => {
+                getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) =>
+                setFormData({ ...formData, avatar: downloadURL })
+                );
             }
         );
-    }
+        };
 
+
+    
     const handleChange = (e) => {
         setFormData({...formData, [e.target.id] : e.target.value});
-    }
+    };
 
-    // console.log(formData);
+    
 
     const handleSubmit = async(e) => {
         e.preventDefault();
@@ -76,6 +89,29 @@ const Profile = () => {
             toast.error("Error, Not Updated!");
         }
 
+    };
+
+    const handleDelete = async() => {
+        try {
+            dispatch(deleteUserStart());
+
+            const res = await fetch(`api/user/delete/${currentUser._id}`, {
+                method: 'DELETE',
+            });
+            
+            const data = await res.json();
+            if(data.success === false) {
+                dispatch(deleteUserFailure(data.message));
+                return;
+            }
+
+            dispatch(deleteUserSuccess(data));
+            toast.success('User Has Been Deleted!');
+
+        } catch (error) {
+            dispatch(deleteUserFailure(error.message));
+            toast.error("User Not Deleted!");
+        }
     }
 
 
@@ -104,7 +140,7 @@ const Profile = () => {
                 </button>
             </form>
             <div className="flex justify-between mt-5">
-                <span className='text-red-700 cursor-pointer font-bold' >Delete account</span>
+                <span className='text-red-700 cursor-pointer font-bold' onClick={handleDelete} >Delete account</span>
                 <span className='text-red-700 cursor-pointer font-bold'  >Sign Out</span>
             </div>
             <p className='text-red-700 mt-5'>{error ? error : ''}</p>
