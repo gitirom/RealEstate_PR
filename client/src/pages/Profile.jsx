@@ -88,6 +88,7 @@ const Profile = () => {
             dispatch(updateUserFailure(error.message));
             toast.error("Error, Not Updated!");
         }
+        
 
     };
 

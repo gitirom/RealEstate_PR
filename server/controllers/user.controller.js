@@ -14,7 +14,7 @@ export const updateUser = async(req, res, next) => {
         //update user
         const updatedUser = await User.findByIdAndUpdate(req.params.id, {
             $set:{                             //contain all existing fields from the input documents and newly added fields
-                userName: req.body.userName,
+                userName: req.body.username,
                 email: req.body.email,
                 password: req.body.password,
                 avatar: req.body.avatar,
