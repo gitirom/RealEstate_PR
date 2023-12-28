@@ -28,7 +28,6 @@ const Profile = () => {
         }
     }, [file]);
 
-    console.log(file);
 
     const handleFileUpload = () => {
         const storage = getStorage(app);
