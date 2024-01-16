@@ -6,6 +6,8 @@ import { updateUserStart, updateUserSuccess, updateUserFailure, deleteUserFailur
 import { useDispatch } from 'react-redux';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import {Link} from "react-router-dom";
+// import { LinearProgressWithLabel } from '@material-ui/core/LinearProgress';
 
 
 const Profile = () => {
@@ -148,6 +150,7 @@ const Profile = () => {
                     className='rounded-full h-24 w-24 object-cover cursor-pointer self-center mt-2' 
                     src={currentUser.avatar} alt="profile"
                 />
+                    {/* <LinearProgressWithLabel value={progress} /> */}
                 <input defaultValue={currentUser.userName} className='border p-3 rounded-lg ' type="text" placeholder='username' id='username' onChange={handleChange} />
                 <input defaultValue={currentUser.email} className='border p-3 rounded-lg ' type="email" placeholder='email' id='email' onChange={handleChange} />
                 <input className='border p-3 rounded-lg ' type="password" placeholder='password' id='password' onChange={handleChange} />
@@ -157,6 +160,10 @@ const Profile = () => {
                 >
                         {loading ? 'Loading...' : 'Update'}
                 </button>
+                <Link className='bg-green-700 text-white p-3 rounded-lg text-center uppercase font-bold hover:opacity-95' to={"/create-listing"} >
+                    Create Listing
+                </Link>
+
             </form>
             <div className="flex justify-between mt-5">
                 <span className='text-red-700 cursor-pointer font-bold' onClick={handleDelete} >Delete account</span>
